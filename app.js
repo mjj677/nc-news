@@ -11,7 +11,8 @@ const {
 
 const {
     getArticle,
-    getArticles
+    getArticles,
+    getCommentsByID
 } = require("./controllers/article-controllers/article-controllers.js")
 
 app.get("/api/topics", getTopics);
@@ -21,6 +22,8 @@ app.get("/api", getEndpoints)
 app.get("/api/articles/:article_id", getArticle)
 
 app.get("/api/articles", getArticles)
+
+app.get("/api/articles/:article_id/comments", getCommentsByID)
 
 app.use((err, req, res, next) => {
   if (err.code) res.status(400).send({ msg: "Bad request" });

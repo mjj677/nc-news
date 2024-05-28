@@ -79,7 +79,7 @@ describe("app.js", () => {
             expect(body.msg).toBe("Invalid endpoint / article ID");
           });
       });
-      test("GET:400: should return a 404 message if endpoint is valid but doesn't exist", () => {
+      test("GET:404: should return a 404 message if endpoint is valid but doesn't exist", () => {
         return request(app)
           .get("/api/articles/1000")
           .expect(404)
@@ -91,42 +91,106 @@ describe("app.js", () => {
     describe("GET/API/ARTICLES", () => {
       test("GET:200: should return with a list of all articles which have the correct properties", () => {
         return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles.length).toBe(13)
-          body.articles.forEach((article) => {
-            expect(article).toMatchObject({
-              author: expect.any(String),
-              title: expect.any(String),
-              article_id: expect.any(Number),
-              topic: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              article_img_url: expect.any(String),
-              comment_count: expect.any(String)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBe(13);
+            body.articles.forEach((article) => {
+              expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(String),
+              });
             });
           });
-        })
-      })
+      });
       test("GET:200: should return with a list of all articles, none of which should have a body property", () => {
         return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          body.articles.forEach((article) => {
-            expect(article).not.toHaveProperty('body')
-          })
-        })
-      })
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            body.articles.forEach((article) => {
+              expect(article).not.toHaveProperty("body");
+            });
+          });
+      });
       test("GET:200: should return with a list of all articles sorted by date (created_at) in descending order", () => {
         return request(app)
-        .get("/api/articles")
-        .expect(200)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+    });
+    describe.only("GET/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
+      test("GET:200: should return a list of comments for the specified article with the correct properties", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article_comments.length).toBe(11);
+            body.article_comments.forEach((commentList) => {
+              expect(commentList).toMatchObject({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+              });
+            });
+          });
+      });
+      test("GET:200: should return a list of comments for the specified article with the correct properties sorted by date in ascending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article_comments).toBeSortedBy("created_at", {
+              ascending: true,
+            });
+          });
+      });
+      test("GET:400: should return an invalid input message if endpoint is a string", () => {
+        return request(app)
+        .get("/api/articles/banana/comments")
+        .expect(400)
         .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("created_at", { descending: true})
+          expect(body.msg).toBe("Invalid endpoint / article ID")
         })
       })
-    })
+      test("GET:400: should return an invalid input message if endpoint is <= 0", () => {
+        return request(app)
+        .get("/api/articles/-100/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid endpoint / article ID")
+        })
+      })
+      test("GET:400: should return an invalid input message if endpoint is a decimal", () => {
+        return request(app)
+        .get("/api/articles/1.12/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid endpoint / article ID")
+        })
+      })
+      test("GET:404: should return a 404 message if endpoint is valid but doesn't exist", () => {
+        return request(app)
+        .get("/api/articles/12163/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Can't find comments at provided article")
+        })
+      })
+    });
   });
 });

@@ -52,7 +52,7 @@
   },
   "GET /api/articles/:article_id": {
     "description": "returns an article at specified ID",
-    "queries": ["integer"],
+    "queries": ["positive integer"],
     "requestFormat": {},
     "exampleResponse":  {
       "article": [
@@ -68,5 +68,20 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "returns a list of comments belonging to the specified article",
+    "queries": ["positive integer"],
+    "requestFormat": {},
+    "exampleResponse":  [
+      {
+        "comment_id": 9,
+        "votes": 0,
+        "created_at": "2020-01-01T03:08:00.000Z",
+        "author": "icellusedkars",
+        "body": "Superficially charming",
+        "article_id": 1
+      }
+    ]
   }
 }

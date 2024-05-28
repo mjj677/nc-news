@@ -12,7 +12,7 @@ exports.getArticleByID = (id) => {
 
   const queryValues = [articleID];
 
-  let sqlQuery = `
+  const sqlQuery = `
   SELECT 
   articles.*
   FROM articles
@@ -31,8 +31,7 @@ exports.getArticleByID = (id) => {
 };
 
 exports.getAllArticles = () => {
-    
-  let sqlQuery = `
+  const sqlQuery = `
     SELECT 
     articles.author,
     articles.title,
@@ -49,6 +48,43 @@ exports.getAllArticles = () => {
     `;
 
   return db.query(sqlQuery).then((result) => {
+    return result.rows;
+  });
+};
+
+exports.getComments = (id) => {
+  const articleID = parseInt(id);
+
+  if (isNaN(articleID) || articleID <= 0 || String(articleID) !== id) {
+    return Promise.reject({
+      status: 400,
+      msg: "Invalid endpoint / article ID",
+    });
+  }
+
+  const queryValues = [articleID];
+
+  const sqlQuery = `
+    SELECT 
+    comments.comment_id,
+    comments.votes,
+    comments.created_at,
+    comments.author,
+    comments.body,
+    comments.article_id
+    FROM comments
+    LEFT JOIN articles ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    ORDER BY created_at ASC
+    `;
+
+  return db.query(sqlQuery, queryValues).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Can't find comments at provided article",
+      });
+    }
     return result.rows;
   });
 };
