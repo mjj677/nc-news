@@ -11,10 +11,3 @@ exports.getTopics = (req, res, next) => {
     .catch(next);
 };
 
-exports.getEndpoints = (req, res, next) => {
-  getAllEndpoints()
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch(next);
-};
