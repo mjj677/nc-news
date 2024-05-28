@@ -4,24 +4,24 @@
     "queries": [],
     "requestFormat": {},
     "exampleResponse": {
-        "GET /api": {
-          "description": "serves up a json representation of all the available endpoints of the api",
-          "queries": [],
-          "requestFormat": {},
-          "exampleResponse": {}
-        },
-        "GET /api/topics": {
-          "description": "serves an array of all topics",
-          "queries": [],
-          "requestFormat": {},
-          "exampleResponse": { "topics": ["Array"] }
-        },
-        "GET /api/articles": {
-          "description": "serves an array of all articles",
-          "queries": [ "author", "topic", "sort_by", "order" ],
-          "requestFormat": {},
-          "exampleResponse": { "articles": ["Array"] }
-        }
+      "GET /api": {
+        "description": "serves up a json representation of all the available endpoints of the api",
+        "queries": [],
+        "requestFormat": {},
+        "exampleResponse": {}
+      },
+      "GET /api/topics": {
+        "description": "serves an array of all topics",
+        "queries": [],
+        "requestFormat": {},
+        "exampleResponse": { "topics": ["Array"] }
+      },
+      "GET /api/articles": {
+        "description": "serves an array of all articles",
+        "queries": ["author", "topic", "sort_by", "order"],
+        "requestFormat": {},
+        "exampleResponse": { "articles": ["Array"] }
+      }
     }
   },
   "GET /api/topics": {
@@ -54,7 +54,7 @@
     "description": "returns an article at specified ID",
     "queries": ["positive integer"],
     "requestFormat": {},
-    "exampleResponse":  {
+    "exampleResponse": {
       "article": [
         {
           "article_id": 1,
@@ -73,7 +73,7 @@
     "description": "returns a list of comments belonging to the specified article",
     "queries": ["positive integer"],
     "requestFormat": {},
-    "exampleResponse":  [
+    "exampleResponse": [
       {
         "comment_id": 9,
         "votes": 0,
@@ -83,5 +83,20 @@
         "article_id": 1
       }
     ]
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "takes a comment and posts it to specified article",
+    "queries": [],
+    "requestFormat": { "username": "string", "body": "string" },
+    "exampleResponse":  {
+      "posted_comment": {
+        "comment_id": 19,
+        "body": "Yeah this is totally tubular man...",
+        "article_id": 1,
+        "author": "icellusedkars",
+        "votes": 0,
+        "created_at": "2024-05-28T17:42:15.562Z"
+      }
+    }
   }
 }

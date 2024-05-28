@@ -12,8 +12,11 @@ const {
 const {
     getArticle,
     getArticles,
-    getCommentsByID
+    getCommentsByID,
+    postCommentByID
 } = require("./controllers/article-controllers/article-controllers.js")
+
+app.use(express.json())
 
 app.get("/api/topics", getTopics);
 
@@ -25,8 +28,11 @@ app.get("/api/articles", getArticles)
 
 app.get("/api/articles/:article_id/comments", getCommentsByID)
 
+app.post("/api/articles/:article_id/comments", postCommentByID)
+
 app.use((err, req, res, next) => {
-  if (err.code) res.status(400).send({ msg: "Bad request" });
+  if (err.code)  res.status(400).send({ msg: "Bad request" });
+
   else next(err);
 });
 
