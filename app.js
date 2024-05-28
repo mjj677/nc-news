@@ -10,7 +10,8 @@ const {
 } = require("./controllers/app-controllers/app-controllers.js")
 
 const {
-    getArticle
+    getArticle,
+    getArticles
 } = require("./controllers/article-controllers/article-controllers.js")
 
 app.get("/api/topics", getTopics);
@@ -19,6 +20,7 @@ app.get("/api", getEndpoints)
 
 app.get("/api/articles/:article_id", getArticle)
 
+app.get("/api/articles", getArticles)
 
 app.use((err, req, res, next) => {
   if (err.code) res.status(400).send({ msg: "Bad request" });
