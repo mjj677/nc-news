@@ -3,10 +3,12 @@ const app = express();
 
 const {
   getTopics,
+  getEndpoints
 } = require("./controllers/topics-controllers/topic-controllers");
 
 app.get("/api/topics", getTopics);
 
+app.get("/api", getEndpoints)
 
 app.use((err, req, res, next) => {
   if (err.code) res.status(400).send({ msg: "Bad request" });

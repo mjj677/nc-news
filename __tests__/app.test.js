@@ -33,5 +33,17 @@ describe("app.js", () => {
           });
       });
     });
+    describe("GET/API", () => {
+        test("GET:200: should return with an object describing all the available endpoints on your API", () => {
+            return request(app)
+            .get("/api") 
+            .expect(200)
+            .then(({body}) => {
+                expect(body).toHaveProperty("GET /api");
+                expect(body).toHaveProperty("GET /api/topics");
+                expect(body).toHaveProperty("GET /api/articles")
+            })
+         })
+    })
   });
 });
