@@ -88,5 +88,45 @@ describe("app.js", () => {
           });
       });
     });
+    describe("GET/API/ARTICLES", () => {
+      test("GET:200: should return with a list of all articles which have the correct properties", () => {
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(13)
+          body.articles.forEach((article) => {
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(String)
+            });
+          });
+        })
+      })
+      test("GET:200: should return with a list of all articles, none of which should have a body property", () => {
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          body.articles.forEach((article) => {
+            expect(article).not.toHaveProperty('body')
+          })
+        })
+      })
+      test("GET:200: should return with a list of all articles sorted by date (created_at) in descending order", () => {
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", { descending: true})
+        })
+      })
+    })
   });
 });
