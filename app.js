@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json())
+
 const {
   getTopics,
 } = require("./controllers/topics-controllers/topic-controllers");
@@ -26,8 +28,6 @@ const {
 } = require("./controllers/user-controllers/users-controllers.js")
 
 const userRoutes = require("./routes/userRoutes.js")
-
-app.use(express.json())
 
 app.get("/api/topics", getTopics);
 
