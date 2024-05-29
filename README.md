@@ -21,6 +21,10 @@
 
 The goal was to replicate the core functionality of Reddit.
 
+---
+
+### ***ENDPOINTS***
+
 All of the available endpoints are able to be viewed by going to https://matt-nc-news.onrender.com/api, or by looking in the `endpoints.json` file.
 
 ---
@@ -31,13 +35,25 @@ All of the available endpoints are able to be viewed by going to https://matt-nc
 
 - Postgres ^v8.11.5
 - Node.js ^v22.1.0
+- express ^v4.1.9.2
+
+#### ***NOTE:***
+
+LINUX users: 
+
+- You will need a `user.js` file, containing your postgres username & password, e.g:
+
+```
+{ user: 'mjj677', password: 'password123' }
+```
+
+- This should sit in the nc-news root directory.
 
 ### **DEV-DEPENDENCIES**
 
 Specific dependencies can be located in the `package.json` file or here:
 
 - dotenv ^v16.4.5
-- express ^v4.1.9.2
 - husky ^v8.0.2
 - supertest ^v7.0.0
 
@@ -56,6 +72,8 @@ _TWO_ `.env.` files need to be created in order for the app to function as expec
 
 - `.env.test` containing: `PGDATABASE=nc_news_test`
 - `.env.development` containing: `PGDATABASE=nc_news`
+
+## **SCRIPTS**
 
 ### **INSTALLING DEPENDENCIES**
 
@@ -80,5 +98,7 @@ $ npm run seed
 In order to run the tests, execute the following command in your terminal: 
 
 ```
-$ npm run test
+# Test the api:
+
+$ npm test
 ```
