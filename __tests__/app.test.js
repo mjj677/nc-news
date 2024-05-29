@@ -59,6 +59,17 @@ describe("app.js", () => {
             });
           });
       });
+      test("GET:200: should return an article object with the specified ID and a comment_count property", () => {
+        return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article[0]).toEqual(expect.objectContaining({
+            article_id: 1,
+            comment_count: "11"
+          }))
+        })
+      })
       test("GET:400: should return an invalid input message if endpoint is a string", () => {
         return request(app)
           .get("/api/articles/northcoders")
