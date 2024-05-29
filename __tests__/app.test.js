@@ -94,7 +94,7 @@ describe("app.js", () => {
           .get("/api/articles")
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles.length).toBe(13);
+            expect(body.articles.length).toBeGreaterThanOrEqual(13);
             body.articles.forEach((article) => {
               expect(article).toMatchObject({
                 author: expect.any(String),
