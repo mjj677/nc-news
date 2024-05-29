@@ -3,6 +3,8 @@ const {
   getAllArticles,
   getComments,
   postComment,
+  checkUserExists,
+  checkArticleExists,
 } = require("../../models/article-models/article-models");
 
 exports.getArticle = (req, res, next) => {
@@ -26,25 +28,54 @@ exports.getArticles = (req, res, next) => {
 exports.getCommentsByArticleID = (req, res, next) => {
   const { article_id } = req.params;
 
-    Promise.all([getArticleByID(article_id), getComments(article_id)])
+  Promise.all([getArticleByID(article_id), getComments(article_id)])
     .then(([article, comments]) => {
-        res.status(200).send({ article_comments: comments});
+      res.status(200).send({ article_comments: comments });
     })
     .catch((err) => {
-        if (err.status === 404) {
-            return next({ status:404, msg: "Can't find comments at provided article"})
-        }
-        next(err)
-    })
+      if (err.status === 404) {
+        return next({
+          status: 404,
+          msg: "Can't find comments at provided article",
+        });
+      }
+      next(err);
+    });
 };
 
-exports.postCommentByID = (req, res, next) => {
+exports.postCommentByArticleID = (req, res, next) => {
   const { body } = req;
   const { article_id } = req.params;
-  
-  postComment(body, article_id)
+
+  const articleID = parseInt(article_id);
+
+  if (isNaN(articleID)) {
+    return next({
+      status: 400,
+      msg: "Invalid endpoint / article ID",
+    });
+  }
+
+  Promise.all([checkUserExists(body.username), checkArticleExists(articleID)])
+    .then(() => {
+      return postComment(body, articleID);
+    })
     .then((result) => {
       res.status(201).send({ posted_comment: result });
     })
-    .catch(next);
+    .catch((err) => {
+      if (
+        err.status === 404 &&
+        err.msg === "Can't find article at provided ID"
+      ) {
+        return next(err);
+      } else if (err.status === 404 && err.msg === "User doesn't exist") {
+        return next({
+          status: 404,
+          msg: "User doesn't exist",
+        });
+      } else {
+        return next(err);
+      }
+    });
 };

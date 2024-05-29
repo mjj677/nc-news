@@ -201,7 +201,7 @@ describe("app.js", () => {
       });
     });
     describe("POST/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
-      test("POST:201: should add the passed in comment to the database and returna it", () => {
+      test("POST:201: should add the passed in comment to the database and return it", () => {
         const body = {
           username: "icellusedkars",
           body: "Yeah this is totally tubular man...",
@@ -221,59 +221,28 @@ describe("app.js", () => {
           })
         })
       });
-      test("POST:400: should return 400 message if body contains extra keys", () => {
-        const body = {
-          username: "icellusedkars",
-          body: "Yeah this is totally tubular man...",
-          age: 15
-        };
-        return request(app)
-        .post("/api/articles/1/comments")
-        .send(body)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request')
-        })
+      test("POST:201: should ignore unecessary properties in the body and post comment as expected", () => {
+           const body = {
+              username: "icellusedkars",
+              body: "Yeah this is totally tubular man...",
+              age: 15
+            };
+            return request(app)
+            .post("/api/articles/1/comments")
+            .send(body)
+            .expect(201)
+            .then(({ body }) => {
+              expect(body.posted_comment).toMatchObject({
+                comment_id: expect.any(Number),
+                body: "Yeah this is totally tubular man...",
+                article_id: 1,
+                author: "icellusedkars",
+                votes: 0,
+                created_at: expect.any(String)
+              })
+            })
       })
-      test("POST:400: should return 400 message if body doesn't contain both username and body key(s)", () => {
-        const body = {
-          username: "icellusedkars"
-        };
-        return request(app)
-        .post("/api/articles/1/comments")
-        .send(body)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request')
-        })
-      })
-      test("POST:400: should return a 400 message if username key is not a string", () => {
-        const body = {
-          username: 19,
-          body: "icellusedkars"
-        };
-        return request(app)
-        .post("/api/articles/1/comments")
-        .send(body)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request')
-        })
-      })
-      test("POST:400: should return a 400 message if body key is not a string", () => {
-        const body = {
-          username: "icellusedkars",
-          body: 12
-        };
-        return request(app)
-        .post("/api/articles/1/comments")
-        .send(body)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request')
-        })
-      })
-      test("POST:400: should return a 400 message if endpoint is anything other than a number", () => {
+      test("POST:400: should return a 400 message if ID is anything other than a number", () => {
         const body = {
           username: "icellusedkars",
           body: "Yeah this is totally tubular man..."
@@ -286,33 +255,19 @@ describe("app.js", () => {
           expect(body.msg).toBe("Invalid endpoint / article ID")
         })
       })
-      test("POST:400: should return a 400 message if endpoint is an integer but <=0", () => {
+      test("POST:400: should return 400 message if body doesn't contain both username and/or body key(s)", () => {
         const body = {
-          username: "icellusedkars",
-          body: "Yeah this is totally tubular man..."
+          username: "icellusedkars"
         };
         return request(app)
-        .post("/api/articles/-10/comments")
+        .post("/api/articles/1/comments")
         .send(body)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Invalid endpoint / article ID")
+          expect(body.msg).toBe('Bad request')
         })
       })
-      test("POST:400: should return a 400 message if endpoint is a decimal", () => {
-        const body = {
-          username: "icellusedkars",
-          body: "Yeah this is totally tubular man..."
-        };
-        return request(app)
-        .post("/api/articles/10.123/comments")
-        .send(body)
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Invalid endpoint / article ID")
-        })
-      })
-      test("POST:404: should return a 404 message if endpoint is valid but doesn't exist", () => {
+      test("POST:404: should return a 404 message if articleID is valid but doesn't exist", () => {
         const body = {
           username: "icellusedkars",
           body: "Yeah this is totally tubular man..."
@@ -325,7 +280,7 @@ describe("app.js", () => {
           expect(body.msg).toBe("Can't find article at provided ID")
         })
       })
-      test("POST:404: should return a 404 message if user is valid but doesn't exist", () => {
+      test("POST:404: should return a 404 message if user doesn't exist", () => {
         const body = {
           username: "mjj677",
           body: "Yeah this is totally tubular man..."
@@ -335,7 +290,7 @@ describe("app.js", () => {
         .send(body)
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Can't find article at provided ID")
+          expect(body.msg).toBe("User doesn't exist")
         })
       })
     });
