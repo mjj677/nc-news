@@ -79,12 +79,6 @@ exports.getComments = (id) => {
     `;
 
   return db.query(sqlQuery, queryValues).then((result) => {
-    if (result.rows.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "Can't find comments at provided article",
-      });
-    }
     return result.rows;
   });
 };

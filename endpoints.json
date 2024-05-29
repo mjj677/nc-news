@@ -71,7 +71,7 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "returns a list of comments belonging to the specified article",
-    "queries": ["positive integer"],
+    "queries": [],
     "requestFormat": {},
     "exampleResponse": [
       {
