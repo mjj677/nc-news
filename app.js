@@ -13,7 +13,8 @@ const {
     getArticle,
     getArticles,
     getCommentsByArticleID,
-    postCommentByArticleID
+    postCommentByArticleID,
+    patchArticleByID
 } = require("./controllers/article-controllers/article-controllers.js")
 
 app.use(express.json())
@@ -29,6 +30,8 @@ app.get("/api/articles", getArticles)
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID)
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
+
+app.patch("/api/articles/:article_id", patchArticleByID)
 
 app.use((err, req, res, next) => {
   if (err.code)  res.status(400).send({ msg: "Bad request" });
