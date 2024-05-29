@@ -12,7 +12,7 @@ const {
 const {
     getArticle,
     getArticles,
-    getCommentsByID,
+    getCommentsByArticleID,
     postCommentByID
 } = require("./controllers/article-controllers/article-controllers.js")
 
@@ -26,7 +26,7 @@ app.get("/api/articles/:article_id", getArticle)
 
 app.get("/api/articles", getArticles)
 
-app.get("/api/articles/:article_id/comments", getCommentsByID)
+app.get("/api/articles/:article_id/comments", getCommentsByArticleID)
 
 app.post("/api/articles/:article_id/comments", postCommentByID)
 

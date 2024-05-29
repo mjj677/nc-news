@@ -23,14 +23,19 @@ exports.getArticles = (req, res, next) => {
     .catch(next);
 };
 
-exports.getCommentsByID = (req, res, next) => {
+exports.getCommentsByArticleID = (req, res, next) => {
   const { article_id } = req.params;
 
-  getComments(article_id)
-    .then((result) => {
-      res.status(200).send({ article_comments: result });
+    Promise.all([getArticleByID(article_id), getComments(article_id)])
+    .then(([article, comments]) => {
+        res.status(200).send({ article_comments: comments});
     })
-    .catch(next);
+    .catch((err) => {
+        if (err.status === 404) {
+            return next({ status:404, msg: "Can't find comments at provided article"})
+        }
+        next(err)
+    })
 };
 
 exports.postCommentByID = (req, res, next) => {

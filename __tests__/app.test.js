@@ -144,7 +144,7 @@ describe("app.js", () => {
                 created_at: expect.any(String),
                 author: expect.any(String),
                 body: expect.any(String),
-                article_id: expect.any(Number),
+                article_id: 1,
               });
             });
           });
@@ -159,7 +159,15 @@ describe("app.js", () => {
             });
           });
       });
-      test("GET:400: should return an invalid input message if endpoint is a string", () => {
+      test("GET:200: when requesting the comments of a valid article, but one that has no comments, should receive an empty array with a status of 200", () => {
+        return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article_comments).toEqual([])
+        })
+      })
+      test("GET:400: should return an invalid input message if endpoint is anything other than a number", () => {
         return request(app)
           .get("/api/articles/banana/comments")
           .expect(400)
