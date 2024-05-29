@@ -88,7 +88,7 @@
     "description": "takes a comment and posts it to specified article",
     "queries": [],
     "requestFormat": { "username": "string", "body": "string" },
-    "exampleResponse":  {
+    "exampleResponse": {
       "posted_comment": {
         "comment_id": 19,
         "body": "Yeah this is totally tubular man...",
@@ -103,7 +103,7 @@
     "description": "takes an articleID and updates the vote count",
     "queries": [],
     "requestFormat": { "inc_votes": "newVote" },
-    "exampleResponse":  {
+    "exampleResponse": {
       "patched_article": {
         "article_id": 1,
         "title": "Living in the shadow of a great man",
@@ -120,6 +120,20 @@
     "description": "takes a commentID and deletes it",
     "queries": [],
     "requestFormat": {},
-    "exampleResponse":  {}
+    "exampleResponse": {}
+  },
+  "GET /api/users": {
+    "description": "returns a list of all users",
+    "queries": [],
+    "requestFormat": {},
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   }
 }
