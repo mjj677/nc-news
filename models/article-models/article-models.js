@@ -30,8 +30,8 @@ exports.getArticleByID = (id) => {
   });
 };
 
-exports.getAllArticles = () => {
-  const sqlQuery = `
+exports.getAllArticles = ({ topic } = {}) => {
+  let sqlQuery = `
     SELECT 
     articles.author,
     articles.title,
@@ -43,11 +43,18 @@ exports.getAllArticles = () => {
     COUNT(comments.comment_id) AS comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY created_at DESC
     `;
 
-  return db.query(sqlQuery).then((result) => {
+  const queryValues = [];
+
+  if (topic) {
+    sqlQuery += `WHERE articles.topic = $1 `;
+    queryValues.push(topic);
+  }
+
+  sqlQuery += "GROUP BY articles.article_id ORDER BY created_at DESC";
+
+  return db.query(sqlQuery, queryValues).then((result) => {
     return result.rows;
   });
 };
@@ -133,22 +140,22 @@ exports.postComment = (body, articleID) => {
 };
 
 exports.patchArticle = (body, articleID) => {
-    const inc_votes = body.inc_votes;
-    if (!inc_votes) {
-      return Promise.reject({
-        status: 400,
-        msg: "Bad request",
-      });
-    }
+  const inc_votes = body.inc_votes;
+  if (!inc_votes) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request",
+    });
+  }
 
-    const queryValues = [inc_votes, articleID]
-    const sqlQuery = `
+  const queryValues = [inc_votes, articleID];
+  const sqlQuery = `
     UPDATE articles
     SET votes = votes + $1
     WHERE article_id = $2
     RETURNING *
-    `
-    return db.query(sqlQuery, queryValues).then((result) => {
-        return result.rows[0]
-    })
-}
+    `;
+  return db.query(sqlQuery, queryValues).then((result) => {
+    return result.rows[0];
+  });
+};
