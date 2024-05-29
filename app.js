@@ -29,8 +29,6 @@ const userRoutes = require("./routes/userRoutes.js")
 
 app.use(express.json())
 
-const userRoutes = require("./routes/userRoutes")
-
 app.get("/api/topics", getTopics);
 
 app.get("/api", getEndpoints)
