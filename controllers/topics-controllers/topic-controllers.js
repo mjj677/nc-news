@@ -6,7 +6,7 @@ const {
 exports.getTopics = (req, res, next) => {
   getAllTopics()
     .then((result) => {
-      res.status(200).send({ENDPOINTS: result});
+      res.status(200).send({Topics: result});
     })
     .catch(next);
 };

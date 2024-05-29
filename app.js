@@ -39,7 +39,9 @@ app.get("/api/articles", getArticles)
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID)
 
-app.use("/api/users", userRoutes)
+// app.use("/api/users", userRoutes)
+
+app.get("/api/users", getUsers)
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
 

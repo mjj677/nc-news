@@ -17,8 +17,8 @@ describe("app.js", () => {
           .get("/api/topics")
           .expect(200)
           .then(({ body }) => {
-            expect(body.ENDPOINTS.length).toBe(3);
-            body.ENDPOINTS.forEach((topic) => {
+            expect(body.Topics.length).toBe(3);
+            body.Topics.forEach((topic) => {
               expect(topic).toMatchObject({
                 slug: expect.any(String),
                 description: expect.any(String),
