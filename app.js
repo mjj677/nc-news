@@ -50,7 +50,7 @@ app.patch("/api/articles/:article_id", patchArticleByID)
 app.delete("/api/comments/:comment_id", deleteCommentByID)
 
 app.use((err, req, res, next) => {
-  if (err.code)  res.status(409).send({ msg: err.message });
+  if (err.code)  res.status(409).send({ msg: err.message, stack: err.stack });
   else next(err);
 });
 
