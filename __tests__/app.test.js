@@ -93,7 +93,7 @@ describe("app.js", () => {
       });
     });
     describe("GET/API/ARTICLES", () => {
-      test("GET:200: should return with a list of all articles which have the correct properties", () => {
+      test("GET:200: should return with a list of all articles which have the correct properties, when given no topic", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
@@ -133,6 +133,22 @@ describe("app.js", () => {
             });
           });
       });
+      test("GET:200: should return with a list of articles filtered by specified topic when given a valid topic", () => {
+        return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBeGreaterThanOrEqual(12)
+        })
+      })
+      test("GET:200: should return with an empty array when passed a topic that doesn't exist", () => {
+        return request(app)
+        .get("/api/articles?topic=topicthatnoexist")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toEqual([])
+        })
+      })
     });
     describe("GET/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
       test("GET:200: should return a list of comments for the specified article with the correct properties", () => {
