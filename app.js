@@ -27,8 +27,6 @@ const {
     getUsers
 } = require("./controllers/user-controllers/users-controllers.js")
 
-const userRoutes = require("./routes/userRoutes.js")
-
 app.get("/api/topics", getTopics);
 
 app.get("/api", getEndpoints)
@@ -38,8 +36,6 @@ app.get("/api/articles/:article_id", getArticle)
 app.get("/api/articles", getArticles)
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID)
-
-// app.use("/api/users", userRoutes)
 
 app.get("/api/users", getUsers)
 
