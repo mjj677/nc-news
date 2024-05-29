@@ -5,6 +5,7 @@ const {
   postComment,
   checkUserExists,
   checkArticleExists,
+  patchArticle,
 } = require("../../models/article-models/article-models");
 
 exports.getArticle = (req, res, next) => {
@@ -76,6 +77,38 @@ exports.postCommentByArticleID = (req, res, next) => {
         });
       } else {
         return next(err);
+      }
+    });
+};
+
+exports.patchArticleByID = (req, res, next) => {
+  const { body } = req;
+  const { article_id } = req.params;
+
+  const articleID = parseInt(article_id);
+
+  if (isNaN(articleID)) {
+    return next({
+      status: 400,
+      msg: "Invalid endpoint / article ID",
+    });
+  }
+
+  Promise.all([checkArticleExists(articleID)])
+    .then(() => {
+      return patchArticle(body, articleID);
+    })
+    .then((result) => {
+      res.status(200).send({ patched_article: result });
+    })
+    .catch((err) => {
+      if (
+        err.status === 404 &&
+        err.msg === "Can't find article at provided ID"
+      ) {
+        return next(err);
+      } else {
+        return next(err)
       }
     });
 };

@@ -131,3 +131,24 @@ exports.postComment = (body, articleID) => {
     return result.rows[0];
   });
 };
+
+exports.patchArticle = (body, articleID) => {
+    const inc_votes = body.inc_votes;
+    if (!inc_votes) {
+      return Promise.reject({
+        status: 400,
+        msg: "Bad request",
+      });
+    }
+
+    const queryValues = [inc_votes, articleID]
+    const sqlQuery = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *
+    `
+    return db.query(sqlQuery, queryValues).then((result) => {
+        return result.rows[0]
+    })
+}
