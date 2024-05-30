@@ -38,7 +38,7 @@ exports.getArticleByID = (id) => {
   });
 };
 
-exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
+exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic, limit = 10, p = 1) => {
   const validSort = [
     "author",
     "title",
@@ -54,6 +54,16 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
   }
   if (!validOrder.includes(order_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort order" });
+  }
+
+  limit = parseInt(limit);
+  p = parseInt(p);
+
+  if (isNaN(limit) || limit <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid limit" });
+  }
+  if (isNaN(p) || p <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid page" });
   }
 
   let sqlQuery = `
@@ -75,11 +85,17 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
     queryValues.push(topic);
   }
 
-  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by}`;
+  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by} LIMIT ${limit} OFFSET ${(p - 1) * limit}`;
 
-  return db.query(sqlQuery, queryValues).then((result) => {
-    return result.rows
-  });
+  const totalCountQuery = `
+  SELECT COUNT(*) AS total_count
+  FROM articles
+  ${topic ? 'WHERE topic = $1' : ''}
+  `;
+  return Promise.all([db.query(sqlQuery, queryValues), db.query(totalCountQuery, queryValues)])
+  .then(([articles, total_count]) => {
+    return { articles: articles.rows, total_count: total_count.rows[0].total_count};
+  })
 };
 
 

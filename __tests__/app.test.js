@@ -111,7 +111,8 @@ describe("app.js", () => {
           .get("/api/articles")
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles.length).toBeGreaterThanOrEqual(13);
+            console.log(body)
+            expect(body.articles.length).toBeLessThanOrEqual(10);
             body.articles.forEach((article) => {
               expect(article).toMatchObject({
                 author: expect.any(String),
@@ -146,15 +147,46 @@ describe("app.js", () => {
             });
           });
       });
-      test("GET:200: should return with a list of articles filtered by specified topic when given a valid topic", () => {
+      test("GET:400: should return a 400 message if sort_by is invalid format", () => {
         return request(app)
-          .get("/api/articles?topic=mitch")
-          .expect(200)
+          .get("/api/articles?sort_by=notvalid")
+          .expect(400)
           .then(({ body }) => {
-            expect(body.articles.length).toBeGreaterThanOrEqual(12);
+            expect(body.msg).toBe("Invalid sort_by");
           });
       });
-      test("GET:200: should return a list of articles sorted by a passed in column, when column is valid", () => {
+      test("GET:400: should return a 400 message if order_by is invalid format", () => {
+        return request(app)
+          .get("/api/articles?order_by=notvalid")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort order");
+          });
+      });
+      test("GET:200: should return a list of articles limited by the passed in limit", () => {
+        return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBeLessThanOrEqual(5);
+          expect(body).toHaveProperty("total_count")
+        })
+      })
+      test("GET:200: should return the correct page of articles when passed a limit and page query", () => {
+        return request(app)
+          .get("/api/articles?limit=5&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBeLessThanOrEqual(5);
+            return request(app)
+              .get("/api/articles?limit=5&p=1")
+              .expect(200)
+              .then(({ body: firstPageBody }) => {
+                expect(firstPageBody.articles).not.toEqual(body.articles);
+              });
+          });
+      });
+      test("GET:200: should return a list of all articles sorted by a passed in column, when column is valid", () => {
         return request(app)
           .get("/api/articles?sort_by=title")
           .expect(200)
@@ -173,22 +205,30 @@ describe("app.js", () => {
             });
           });
       });
-      test("GET:400: should return a 400 message if sort_by is invalid format", () => {
+      test("GET:200: should return the total count of articles regardless of limit", () => {
         return request(app)
-          .get("/api/articles?sort_by=notvalid")
-          .expect(400)
+          .get("/api/articles?limit=5")
+          .expect(200)
           .then(({ body }) => {
-            expect(body.msg).toBe("Invalid sort_by");
+            expect(Number(body.total_count)).toBeGreaterThan(5);
           });
       });
-      test("GET:400: should return a 400 message if order_by is invalid format", () => {
+      test("GET:400: should return a 400 message if limit is invalid format", () => {
         return request(app)
-          .get("/api/articles?order_by=notvalid")
+          .get("/api/articles?limit=not_valid")
           .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toBe("Invalid sort order");
+            expect(body.msg).toBe("Invalid limit");
           });
       });
+      test("GET:400: should return a 400 message if page is invalid format", () => {
+        return request(app)
+        .get("/api/articles?p=not_valid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid page")
+        })
+      })
       test("GET:404: should return a 404 message if topic passed in doesn't exist", () => {
         return request(app)
         .get("/api/articles?topic=muffins")

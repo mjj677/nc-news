@@ -35,21 +35,17 @@ exports.getArticle = (req, res, next) => {
 // };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order_by, topic } = req.query;
+  const { sort_by, order_by, topic, limit, p } = req.query;
 
-  if(topic) {
-    return checkTopicExists(topic).then(() => {
-      return getAllArticles(sort_by, order_by, topic)
-      .then((articles) => {
-        res.status(200).send({articles})
-      })
-      .catch(next)
-    }).catch(next)
-  } 
-  return getAllArticles(sort_by, order_by)
-  .then((articles) => {
-    res.status(200).send({ articles })
-  }).catch(next)
+  const articlePromises = getAllArticles(sort_by, order_by, topic, limit, p);
+  const topicPromise = topic ? checkTopicExists(topic) : Promise.resolve();
+
+  Promise.all([topicPromise, articlePromises])
+  .then(([topicCheckResult, articleResult]) => {
+    const { articles, total_count } = articleResult;
+    res.status(200).send({ articles, total_count });
+  })
+  .catch(next);
 };
 
 exports.getCommentsByArticleID = (req, res, next) => {
