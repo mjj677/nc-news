@@ -17,6 +17,7 @@ const {
     getCommentsByArticleID,
     postCommentByArticleID,
     patchArticleByID,
+    postArticle
 } = require("./controllers/article-controllers/article-controllers.js")
 
 const {
@@ -44,6 +45,8 @@ app.get("/api/users", getUsers)
 app.get("/api/users/:username", getUserByName)
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
+
+app.post("/api/articles", postArticle)
 
 app.patch("/api/articles/:article_id", patchArticleByID)
 

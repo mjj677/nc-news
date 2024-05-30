@@ -122,7 +122,7 @@ exports.checkUserExists = (username) => {
         msg: "User doesn't exist",
       });
     }
-    return rows
+    return rows;
   });
 };
 
@@ -165,6 +165,7 @@ exports.postComment = (body, articleID) => {
 
 exports.patchArticle = (body, articleID) => {
   const inc_votes = body.inc_votes;
+
   if (!inc_votes) {
     return Promise.reject({
       status: 400,
@@ -183,3 +184,63 @@ exports.patchArticle = (body, articleID) => {
     return result.rows[0];
   });
 };
+
+exports.postArticleBody = (
+  author,
+  title,
+  body,
+  topic,
+  article_img_url = 'DEFAULT'
+) => {
+  if (!author || !title || !body || !topic) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: missing body field(s)",
+    });
+  }
+
+  const queryValues = [title, topic, author, body];
+  let sqlQuery = `
+    INSERT INTO articles
+    (title, topic, author, body, votes, article_img_url)
+    VALUES
+    ($1, $2, $3, $4, DEFAULT, `;
+
+  if (article_img_url === "DEFAULT") {
+    sqlQuery += `DEFAULT`;
+  } else {
+    sqlQuery += `$5`;
+    queryValues.push(article_img_url);
+  }
+
+  sqlQuery += `) 
+  RETURNING *`;
+
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows[0]
+  });
+};
+
+exports.checkAuthorExists = (author) => {
+  const sqlQuery = `SELECT * FROM users WHERE username = $1`;
+  return db.query(sqlQuery, [author]).then(({ rows }) => {
+    if (!rows.length) {
+      return Promise.reject({
+        status: 404,
+        msg: "Author doesn't exist",
+      });
+    }
+  });
+}
+
+exports.checkTopicExists = (topic) => {
+  const sqlQuery = `SELECT * FROM topics WHERE slug = $1`;
+  return db.query(sqlQuery, [topic]).then(({ rows }) => {
+    if (!rows.length) {
+      return Promise.reject({
+        status: 404,
+        msg: "Invalid topic",
+      });
+    }
+  });
+}

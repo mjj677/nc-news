@@ -162,6 +162,25 @@
         "votes": 26,
         "created_at": "2020-04-06T12:17:00.000Z"
       }
-    }
+    },
+    "POST /api/articles/": {
+      "description": "posts an article",
+      "queries": [],
+      "requestFormat": {
+        "author": "butter_bridge",
+        "title": "TITLE",
+        "body": "BODY",
+        "topic": "cats",
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+    },
+      "exampleResponse": {
+        "author": "butter_bridge",
+        "title": "TITLE",
+        "body": "BODY",
+        "topic": "cats",
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "article_id": 1
+        }
+      }
   }
 
