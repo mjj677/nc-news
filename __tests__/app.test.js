@@ -160,6 +160,43 @@ describe("app.js", () => {
           expect(body.articles).toEqual([])
         })
       })
+      test("GET:200: should return a list of articles sorted by a passed in column, when column is valid", () => {
+        return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("title", {descending: true})
+        })
+      })
+      test("GET:200: should return a list of articles sorted by sort_by, ordered by order_by and all have the declared topic", () => {
+        return request(app)
+        .get("/api/articles?sort_by=votes&order_by=asc&topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("votes", {ascending: true})
+          body.articles.forEach((article) => {
+            expect(article.topic).toBe("mitch")
+          })
+        })
+      })
+      test("GET:400: should return a 400 message if sort_by is invalid format", () => {
+        return request(app)
+        .get("/api/articles?sort_by=notvalid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort_by")
+        })
+      })
+      test("GET:400: should return a 400 message if order_by is invalid format", () => {
+        return request(app)
+        .get("/api/articles?order_by=notvalid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort order")
+        })
+      })
+      
+
     });
     describe("GET/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
       test("GET:200: should return a list of comments for the specified article with the correct properties", () => {

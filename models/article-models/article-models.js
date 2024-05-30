@@ -38,7 +38,24 @@ exports.getArticleByID = (id) => {
   });
 };
 
-exports.getAllArticles = ({ topic } = {}) => {
+exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
+  const validSort = [
+    "author",
+    "title",
+    "article_id",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+  const validOrder = ["asc", "desc"];
+
+  if (!validSort.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by" });
+  }
+  if (!validOrder.includes(order_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort order" });
+  }
+
   let sqlQuery = `
     SELECT 
     articles.author,
@@ -52,18 +69,16 @@ exports.getAllArticles = ({ topic } = {}) => {
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
     `;
-
   const queryValues = [];
-
   if (topic) {
     sqlQuery += `WHERE articles.topic = $1 `;
     queryValues.push(topic);
   }
 
-  sqlQuery += "GROUP BY articles.article_id ORDER BY created_at DESC";
+  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by}`;
 
-  return db.query(sqlQuery, queryValues).then((result) => {
-    return result.rows;
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows;
   });
 };
 
