@@ -44,7 +44,6 @@ exports.checkTopic = (slug) => {
         msg: "409: Topic already exists",
       });
     }
-    return rows;
   });
 };
 
