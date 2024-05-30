@@ -47,3 +47,4 @@ exports.checkTopic = (slug) => {
     return rows;
   });
 };
+

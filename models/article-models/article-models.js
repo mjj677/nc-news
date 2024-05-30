@@ -38,7 +38,7 @@ exports.getArticleByID = (id) => {
   });
 };
 
-exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
+exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic, limit = 10, p = 1) => {
   const validSort = [
     "author",
     "title",
@@ -54,6 +54,16 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
   }
   if (!validOrder.includes(order_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort order" });
+  }
+
+  limit = parseInt(limit);
+  p = parseInt(p);
+
+  if (isNaN(limit) || limit <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid limit" });
+  }
+  if (isNaN(p) || p <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid page" });
   }
 
   let sqlQuery = `
@@ -75,12 +85,54 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
     queryValues.push(topic);
   }
 
-  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by}`;
+  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by} LIMIT ${limit} OFFSET ${(p - 1) * limit}`;
 
-  return db.query(sqlQuery, queryValues).then(({ rows }) => {
-    return rows;
-  });
+  const totalCountQuery = `
+  SELECT COUNT(*) AS total_count
+  FROM articles
+  ${topic ? 'WHERE topic = $1' : ''}
+  `;
+  return Promise.all([db.query(sqlQuery, queryValues), db.query(totalCountQuery, queryValues)])
+  .then(([articles, total_count]) => {
+    return { articles: articles.rows, total_count: total_count.rows[0].total_count};
+  })
 };
+
+
+/*
+
+WITH article_data AS (
+  SELECT 
+    articles.author,
+    articles.title,
+    articles.article_id,
+    articles.topic,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url,
+    COUNT(comments.comment_id) AS comment_count
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  GROUP BY 
+    articles.author,
+    articles.title,
+    articles.article_id,
+    articles.topic,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url
+  ORDER BY created_at DESC
+  LIMIT $1 OFFSET $2
+),
+total_count AS (
+  SELECT COUNT(*) AS total_count FROM articles
+)
+SELECT 
+  article_data.*,
+  total_count.total_count
+FROM article_data, total_count;
+
+*/
 
 exports.getComments = (id) => {
   const articleID = parseInt(id);
@@ -239,7 +291,7 @@ exports.checkTopicExists = (topic) => {
     if (!rows.length) {
       return Promise.reject({
         status: 404,
-        msg: "Invalid topic",
+        msg: "Topic doesn't exist",
       });
     }
   });

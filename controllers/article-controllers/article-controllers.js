@@ -15,6 +15,7 @@ const {
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
 
+
   getArticleByID(article_id)
     .then((result) => {
       res.status(200).send({ article: result });
@@ -22,14 +23,30 @@ exports.getArticle = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticles = (req, res, next) => {
-  const { sort_by, order_by, topic } = req.query;
+// exports.getArticles = (req, res, next) => {
+//   const { sort_by, order_by, topic, limit, page } = req.query;
 
-  getAllArticles(sort_by, order_by, topic)
-    .then((articles) => {
-      res.status(200).send({ articles });
-    })
-    .catch(next);
+//   getAllArticles(sort_by, order_by, topic, limit, page)
+//     .then(({articles, total_count}) => {
+//       res.status(200).send({ articles, total_count });
+//     })
+//     .catch(next);
+
+
+// };
+
+exports.getArticles = (req, res, next) => {
+  const { sort_by, order_by, topic, limit, p } = req.query;
+
+  const articlePromises = getAllArticles(sort_by, order_by, topic, limit, p);
+  const topicPromise = topic ? checkTopicExists(topic) : Promise.resolve();
+
+  Promise.all([topicPromise, articlePromises])
+  .then(([topicCheckResult, articleResult]) => {
+    const { articles, total_count } = articleResult;
+    res.status(200).send({ articles, total_count });
+  })
+  .catch(next);
 };
 
 exports.getCommentsByArticleID = (req, res, next) => {
