@@ -6,6 +6,9 @@ const {
   checkUserExists,
   checkArticleExists,
   patchArticle,
+  postArticleBody,
+  checkAuthorExists,
+  checkTopicExists,
 } = require("../../models/article-models/article-models");
 
 exports.getArticle = (req, res, next) => {
@@ -19,7 +22,7 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    const {sort_by, order_by, topic} = req.query;
+  const { sort_by, order_by, topic } = req.query;
 
   getAllArticles(sort_by, order_by, topic)
     .then((articles) => {
@@ -110,7 +113,21 @@ exports.patchArticleByID = (req, res, next) => {
       ) {
         return next(err);
       } else {
-        return next(err)
+        return next(err);
       }
     });
+};
+
+exports.postArticle = (req, res, next) => {
+  const { author, title, body, topic, article_img_url } = req.body;
+
+  Promise.all([,
+    checkAuthorExists(author),
+    checkTopicExists(topic),
+    postArticleBody(author, title, body, topic, article_img_url)
+  ])
+    .then((posted_article) => {
+      res.status(201).send({ posted_article: posted_article[3] });
+    })
+    .catch(next);
 };

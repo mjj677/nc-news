@@ -456,6 +456,104 @@ describe("app.js", () => {
           });
       });
     });
+    describe("POST/API/ARTICLES", () => {
+      test("POST:201: should create and return article object", () => {
+        const body = {
+          author: 'butter_bridge',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'mitch',
+          article_img_url: 'URL'
+        }
+        return request(app)
+        .post("/api/articles")
+        .send(body)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.posted_article).toMatchObject({
+          author: 'butter_bridge',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'mitch',
+          article_img_url: "URL",
+          article_id: expect.any(Number)
+          })
+        })
+      })
+      test("POST:201: should ignore unecessary properties in body", () => {
+        const body = {
+          author: 'butter_bridge',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'mitch',
+          article_img_url: 'URL',
+          favourite_food: 'steak'
+        }
+        return request(app)
+        .post("/api/articles")
+        .send(body)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.posted_article).not.toHaveProperty("favourite_food")
+          expect(body.posted_article).toMatchObject({
+          author: 'butter_bridge',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'mitch',
+          article_img_url: "URL",
+          article_id: expect.any(Number)
+          })
+        })
+      })
+      test("POST:400: should return a 400 message if body is missing require fields", () => {
+        const body = {
+          author: 'butter_bridge',
+          title: 'TITLE',
+          topic: 'mitch',
+          article_img_url: 'URL',
+          favourite_food: 'steak'
+        }
+        return request(app)
+        .post("/api/articles")
+        .send(body)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request: missing body field(s)')
+        })
+      })
+      test("POST:404: should return a 404 message if author doesn't exist", () => {
+        const body = {
+          author: 'mjj677',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'mitch',
+          article_img_url: 'URL',
+        }
+        return request(app)
+        .post("/api/articles")
+        .send(body)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Author doesn't exist")
+        })
+      })
+      test("POST:404: should return a 404 message if topic doesn't exist", () => {
+        const body = {
+          author: 'butter_bridge',
+          title: 'TITLE',
+          body: 'BODY',
+          topic: 'drinks',
+          article_img_url: 'URL',
+        }
+        return request(app)
+        .post("/api/articles")
+        .send(body)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid topic")
+        })
+      })
+    })
   });
   describe("COMMENTS", () => {
     describe("DELETE/API/COMMENTS/:COMMENT_ID", () => {
