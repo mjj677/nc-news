@@ -55,7 +55,6 @@ app.patch("/api/comments/:comment_id", patchCommentByID)
 app.delete("/api/comments/:comment_id", deleteCommentByID)
 
 app.use((err, req, res, next) => {
-    console.log(err.message)
   if (err.code)  res.status(409).send({ msg: err.message, stack: err.stack });
   else next(err);
 });

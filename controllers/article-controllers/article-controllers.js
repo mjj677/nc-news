@@ -14,6 +14,7 @@ const {
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
 
+
   getArticleByID(article_id)
     .then((result) => {
       res.status(200).send({ article: result });
@@ -21,14 +22,34 @@ exports.getArticle = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticles = (req, res, next) => {
-  const { sort_by, order_by, topic, limit, page } = req.query;
+// exports.getArticles = (req, res, next) => {
+//   const { sort_by, order_by, topic, limit, page } = req.query;
 
-  getAllArticles(sort_by, order_by, topic, limit, page)
-    .then(({articles, total_count}) => {
-      res.status(200).send({ articles, total_count });
-    })
-    .catch(next);
+//   getAllArticles(sort_by, order_by, topic, limit, page)
+//     .then(({articles, total_count}) => {
+//       res.status(200).send({ articles, total_count });
+//     })
+//     .catch(next);
+
+
+// };
+
+exports.getArticles = (req, res, next) => {
+  const { sort_by, order_by, topic } = req.query;
+
+  if(topic) {
+    return checkTopicExists(topic).then(() => {
+      return getAllArticles(sort_by, order_by, topic)
+      .then((articles) => {
+        res.status(200).send({articles})
+      })
+      .catch(next)
+    }).catch(next)
+  } 
+  return getAllArticles(sort_by, order_by)
+  .then((articles) => {
+    res.status(200).send({ articles })
+  }).catch(next)
 };
 
 exports.getCommentsByArticleID = (req, res, next) => {

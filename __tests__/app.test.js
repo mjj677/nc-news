@@ -105,7 +105,7 @@ describe("app.js", () => {
           });
       });
     });
-    xdescribe("GET/API/ARTICLES", () => {
+    describe("GET/API/ARTICLES", () => {
       test("GET:200: should return with a list of all articles which have the correct properties, when given no topic", () => {
         return request(app)
           .get("/api/articles")
@@ -154,14 +154,6 @@ describe("app.js", () => {
             expect(body.articles.length).toBeGreaterThanOrEqual(12);
           });
       });
-      test("GET:200: should return with an empty array when passed a topic that doesn't exist", () => {
-        return request(app)
-          .get("/api/articles?topic=topicthatnoexist")
-          .expect(200)
-          .then(({ body }) => {
-            expect(body.articles).toEqual([]);
-          });
-      });
       test("GET:200: should return a list of articles sorted by a passed in column, when column is valid", () => {
         return request(app)
           .get("/api/articles?sort_by=title")
@@ -197,13 +189,12 @@ describe("app.js", () => {
             expect(body.msg).toBe("Invalid sort order");
           });
       });
-
-      test("GET:200: should return a list of 10 articles by default", () => {
+      test("GET:404: should return a 404 message if topic passed in doesn't exist", () => {
         return request(app)
-        .get("/api/articles?limit=1&page=1")
-        .expect(200)
+        .get("/api/articles?topic=muffins")
+        .expect(404)
         .then(({ body }) => {
-          console.log(body)
+          expect(body.msg).toBe("Topic doesn't exist")
         })
       })
     });
@@ -503,7 +494,6 @@ describe("app.js", () => {
         .send(body)
         .expect(201)
         .then(({ body }) => {
-          console.log(body.posted_article)
           expect(body.posted_article).not.toHaveProperty("favourite_food")
           expect(body.posted_article).toMatchObject({
           author: 'butter_bridge',
@@ -560,7 +550,7 @@ describe("app.js", () => {
         .send(body)
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Invalid topic")
+          expect(body.msg).toBe("Topic doesn't exist")
         })
       })
     })
