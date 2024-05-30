@@ -9,6 +9,7 @@ exports.checkCommentExists = (commentID) => {
         msg: "Can't find comment at provided ID",
       });
     }
+    return rows
   });
 };
 
@@ -22,3 +23,25 @@ exports.deleteComment = (commentID) => {
     return result;
   });
 };
+
+exports.patchComment = (body, comment_id) => {
+
+  const {inc_votes} = body
+  if (!inc_votes) {
+    return Promise.reject({
+      status:400,
+      msg: "Bad request: no vote value"
+    })
+  }
+
+  const queryValues = [inc_votes, comment_id]
+  const sqlQuery = `
+  UPDATE comments
+  SET votes = votes + $1
+  WHERE comment_id = $2
+  RETURNING * 
+  `
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows
+  })
+}
