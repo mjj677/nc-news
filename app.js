@@ -5,6 +5,7 @@ app.use(express.json())
 
 const {
   getTopics,
+  postTopic
 } = require("./controllers/topics-controllers/topic-controllers");
 
 const {
@@ -17,7 +18,8 @@ const {
     getCommentsByArticleID,
     postCommentByArticleID,
     patchArticleByID,
-    postArticle
+    postArticle,
+    deleteArticleByID
 } = require("./controllers/article-controllers/article-controllers.js")
 
 const {
@@ -48,11 +50,15 @@ app.post("/api/articles/:article_id/comments", postCommentByArticleID)
 
 app.post("/api/articles", postArticle)
 
+app.post("/api/topics", postTopic)
+
 app.patch("/api/articles/:article_id", patchArticleByID)
 
 app.patch("/api/comments/:comment_id", patchCommentByID)
 
 app.delete("/api/comments/:comment_id", deleteCommentByID)
+
+app.delete("/api/articles/:article_id", deleteArticleByID)
 
 app.use((err, req, res, next) => {
   if (err.code)  res.status(409).send({ msg: err.message, stack: err.stack });

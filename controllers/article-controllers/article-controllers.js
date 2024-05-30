@@ -9,6 +9,7 @@ const {
   postArticleBody,
   checkAuthorExists,
   checkTopicExists,
+  deleteArticle,
 } = require("../../models/article-models/article-models");
 
 exports.getArticle = (req, res, next) => {
@@ -138,13 +139,32 @@ exports.patchArticleByID = (req, res, next) => {
 exports.postArticle = (req, res, next) => {
   const { author, title, body, topic, article_img_url } = req.body;
 
-  Promise.all([,
+  Promise.all([
+    ,
     checkAuthorExists(author),
     checkTopicExists(topic),
-    postArticleBody(author, title, body, topic, article_img_url)
+    postArticleBody(author, title, body, topic, article_img_url),
   ])
     .then((posted_article) => {
       res.status(201).send({ posted_article: posted_article[3] });
+    })
+    .catch(next);
+};
+
+exports.deleteArticleByID = (req, res, next) => {
+  const { article_id } = req.params;
+  const articleID = parseInt(article_id);
+
+  if (isNaN(articleID)) {
+    return next({
+      status: 400,
+      msg: "Invalid endpoint / article ID",
+    });
+  }
+
+  Promise.all([checkArticleExists(articleID), deleteArticle(articleID)])
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };
