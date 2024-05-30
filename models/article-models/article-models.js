@@ -98,43 +98,7 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic, limi
   })
 };
 
-
-/*
-
-WITH article_data AS (
-  SELECT 
-    articles.author,
-    articles.title,
-    articles.article_id,
-    articles.topic,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url,
-    COUNT(comments.comment_id) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY 
-    articles.author,
-    articles.title,
-    articles.article_id,
-    articles.topic,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url
-  ORDER BY created_at DESC
-  LIMIT $1 OFFSET $2
-),
-total_count AS (
-  SELECT COUNT(*) AS total_count FROM articles
-)
-SELECT 
-  article_data.*,
-  total_count.total_count
-FROM article_data, total_count;
-
-*/
-
-exports.getComments = (id) => {
+exports.getComments = (id, limit, offset) => {
   const articleID = parseInt(id);
 
   if (isNaN(articleID) || articleID <= 0 || String(articleID) !== id) {
@@ -143,8 +107,8 @@ exports.getComments = (id) => {
       msg: "Invalid endpoint / article ID",
     });
   }
-
-  const queryValues = [articleID];
+  
+  const queryValues = [articleID, limit, offset];
 
   const sqlQuery = `
     SELECT 
@@ -158,6 +122,7 @@ exports.getComments = (id) => {
     LEFT JOIN articles ON comments.article_id = articles.article_id
     WHERE articles.article_id = $1
     ORDER BY created_at ASC
+    LIMIT $2 OFFSET $3
     `;
 
   return db.query(sqlQuery, queryValues).then((result) => {

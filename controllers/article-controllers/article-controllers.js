@@ -15,25 +15,12 @@ const {
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
 
-
   getArticleByID(article_id)
     .then((result) => {
       res.status(200).send({ article: result });
     })
     .catch(next);
 };
-
-// exports.getArticles = (req, res, next) => {
-//   const { sort_by, order_by, topic, limit, page } = req.query;
-
-//   getAllArticles(sort_by, order_by, topic, limit, page)
-//     .then(({articles, total_count}) => {
-//       res.status(200).send({ articles, total_count });
-//     })
-//     .catch(next);
-
-
-// };
 
 exports.getArticles = (req, res, next) => {
   const { sort_by, order_by, topic, limit, p } = req.query;
@@ -42,17 +29,29 @@ exports.getArticles = (req, res, next) => {
   const topicPromise = topic ? checkTopicExists(topic) : Promise.resolve();
 
   Promise.all([topicPromise, articlePromises])
-  .then(([topicCheckResult, articleResult]) => {
-    const { articles, total_count } = articleResult;
-    res.status(200).send({ articles, total_count });
-  })
-  .catch(next);
+    .then(([topicCheckResult, articleResult]) => {
+      const { articles, total_count } = articleResult;
+      res.status(200).send({ articles, total_count });
+    })
+    .catch(next);
 };
 
 exports.getCommentsByArticleID = (req, res, next) => {
   const { article_id } = req.params;
+  let { limit = 10, p = 1 } = req.query;
+  limit = parseInt(limit);
+  p = parseInt(p);
 
-  Promise.all([getArticleByID(article_id), getComments(article_id)])
+  if (isNaN(limit) || limit <= 0) {
+    return res.status(400).send({ msg: "Invalid limit" });
+  }
+  if (isNaN(p) || p <= 0) {
+    return res.status(400).send({ msg: "Invalid page" });
+  }
+
+  const offset = (p - 1) * limit;
+
+  Promise.all([getArticleByID(article_id), getComments(article_id, limit, offset)])
     .then(([article, comments]) => {
       res.status(200).send({ article_comments: comments });
     })
