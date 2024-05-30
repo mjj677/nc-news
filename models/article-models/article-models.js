@@ -122,6 +122,7 @@ exports.checkUserExists = (username) => {
         msg: "User doesn't exist",
       });
     }
+    return rows
   });
 };
 

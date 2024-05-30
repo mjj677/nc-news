@@ -24,7 +24,8 @@ const {
 } = require("./controllers/comment-controllers/comment-controllers.js")
 
 const {
-    getUsers
+    getUsers,
+    getUserByName
 } = require("./controllers/user-controllers/users-controllers.js")
 
 app.get("/api/topics", getTopics);
@@ -38,6 +39,8 @@ app.get("/api/articles", getArticles)
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID)
 
 app.get("/api/users", getUsers)
+
+app.get("/api/users/:username", getUserByName)
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
 
