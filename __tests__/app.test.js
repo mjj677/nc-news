@@ -105,7 +105,7 @@ describe("app.js", () => {
           });
       });
     });
-    describe.only("GET/API/ARTICLES", () => {
+    xdescribe("GET/API/ARTICLES", () => {
       test("GET:200: should return with a list of all articles which have the correct properties, when given no topic", () => {
         return request(app)
           .get("/api/articles")
@@ -198,7 +198,7 @@ describe("app.js", () => {
           });
       });
 
-      test.only("GET:200: should return a list of 10 articles by default", () => {
+      test("GET:200: should return a list of 10 articles by default", () => {
         return request(app)
         .get("/api/articles?limit=1&page=1")
         .expect(200)
