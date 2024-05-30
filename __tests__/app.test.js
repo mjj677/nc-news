@@ -354,7 +354,7 @@ describe("app.js", () => {
           body: "Yeah this is totally tubular man...",
         };
         return request(app)
-          .post("/api/articles/506/comments")
+          .post("/api/articles/1/comments")
           .send(body)
           .expect(404)
           .then(({ body }) => {
@@ -511,5 +511,27 @@ describe("app.js", () => {
           });
       });
     });
+    describe("GET/API/USERS/:USERNAME", () => {
+      test("GET:200: should respond with a user object with the correct properties", () => {
+        return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.user).toMatchObject({
+            username: 'butter_bridge',
+            name: 'jonny',
+            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+          })
+        })
+      })
+      test("GET:404: should return a 404 message if user doesn't exist", () => {
+        return request(app)
+        .get("/api/users/mattjohnston")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User doesn't exist")
+        })
+      })
+    })
   });
 });

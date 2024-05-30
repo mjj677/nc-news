@@ -135,5 +135,19 @@
         }
       ]
     }
+  },
+  "GET /api/users/:username": {
+    "description": "returns a user object if username provided exists",
+    "queries": [],
+    "exampleRequest": "GET /api/users/butter_bridge",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   }
 }
