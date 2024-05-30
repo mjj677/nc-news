@@ -20,7 +20,8 @@ const {
 } = require("./controllers/article-controllers/article-controllers.js")
 
 const {
-    deleteCommentByID
+    deleteCommentByID,
+    patchCommentByID
 } = require("./controllers/comment-controllers/comment-controllers.js")
 
 const {
@@ -45,6 +46,8 @@ app.get("/api/users/:username", getUserByName)
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
 
 app.patch("/api/articles/:article_id", patchArticleByID)
+
+app.patch("/api/comments/:comment_id", patchCommentByID)
 
 app.delete("/api/comments/:comment_id", deleteCommentByID)
 

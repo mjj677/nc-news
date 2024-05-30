@@ -61,15 +61,17 @@ describe("app.js", () => {
       });
       test("GET:200: should return an article object with the specified ID and a comment_count property", () => {
         return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article[0]).toEqual(expect.objectContaining({
-            article_id: 1,
-            comment_count: "11"
-          }))
-        })
-      })
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article[0]).toEqual(
+              expect.objectContaining({
+                article_id: 1,
+                comment_count: "11",
+              })
+            );
+          });
+      });
       test("GET:400: should return an invalid input message if endpoint is a string", () => {
         return request(app)
           .get("/api/articles/northcoders")
@@ -146,57 +148,55 @@ describe("app.js", () => {
       });
       test("GET:200: should return with a list of articles filtered by specified topic when given a valid topic", () => {
         return request(app)
-        .get("/api/articles?topic=mitch")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles.length).toBeGreaterThanOrEqual(12)
-        })
-      })
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBeGreaterThanOrEqual(12);
+          });
+      });
       test("GET:200: should return with an empty array when passed a topic that doesn't exist", () => {
         return request(app)
-        .get("/api/articles?topic=topicthatnoexist")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toEqual([])
-        })
-      })
+          .get("/api/articles?topic=topicthatnoexist")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toEqual([]);
+          });
+      });
       test("GET:200: should return a list of articles sorted by a passed in column, when column is valid", () => {
         return request(app)
-        .get("/api/articles?sort_by=title")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("title", {descending: true})
-        })
-      })
+          .get("/api/articles?sort_by=title")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy("title", { descending: true });
+          });
+      });
       test("GET:200: should return a list of articles sorted by sort_by, ordered by order_by and all have the declared topic", () => {
         return request(app)
-        .get("/api/articles?sort_by=votes&order_by=asc&topic=mitch")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("votes", {ascending: true})
-          body.articles.forEach((article) => {
-            expect(article.topic).toBe("mitch")
-          })
-        })
-      })
+          .get("/api/articles?sort_by=votes&order_by=asc&topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy("votes", { ascending: true });
+            body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+          });
+      });
       test("GET:400: should return a 400 message if sort_by is invalid format", () => {
         return request(app)
-        .get("/api/articles?sort_by=notvalid")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Invalid sort_by")
-        })
-      })
+          .get("/api/articles?sort_by=notvalid")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort_by");
+          });
+      });
       test("GET:400: should return a 400 message if order_by is invalid format", () => {
         return request(app)
-        .get("/api/articles?order_by=notvalid")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Invalid sort order")
-        })
-      })
-      
-
+          .get("/api/articles?order_by=notvalid")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort order");
+          });
+      });
     });
     describe("GET/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
       test("GET:200: should return a list of comments for the specified article with the correct properties", () => {
@@ -365,12 +365,12 @@ describe("app.js", () => {
     describe("PATCH/API/ARTICLES/:ARTICLE_ID", () => {
       test("PATCH:200: should successfully update article and return the updated article when given a positive value", () => {
         const body = { inc_votes: 10 };
+
         return request(app)
           .patch("/api/articles/1")
           .send(body)
           .expect(200)
           .then(({ body }) => {
-            expect(body).toHaveProperty("patched_article");
             expect(body.patched_article).toMatchObject({
               article_id: 1,
               title: "Living in the shadow of a great man",
@@ -391,7 +391,6 @@ describe("app.js", () => {
           .send(body)
           .expect(200)
           .then(({ body }) => {
-            expect(body).toHaveProperty("patched_article");
             expect(body.patched_article).toMatchObject({
               article_id: 1,
               title: "Living in the shadow of a great man",
@@ -492,6 +491,79 @@ describe("app.js", () => {
           });
       });
     });
+    describe("PATCH/API/COMMENTS/:COMMENT_ID", () => {
+      test("PATCH:200: should return updated comment with the correct properties", () => {
+        const body = { inc_votes: 10 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(body)
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.patched_comment[0]).toMatchObject({
+              comment_id: 1,
+              body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              article_id: 9,
+              author: "butter_bridge",
+              votes: 26,
+              created_at: "2020-04-06T12:17:00.000Z",
+            });
+          });
+      });
+      test("PATCH:200: should return updated comment with the correct properties when given a negative inc_votes value", () => {
+        const body = { inc_votes: -10 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(body)
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.patched_comment[0]).toMatchObject({
+              comment_id: 1,
+              body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              article_id: 9,
+              author: "butter_bridge",
+              votes: 6,
+              created_at: "2020-04-06T12:17:00.000Z",
+            });
+          });
+      });
+      test("PATCH:200: should ignore unecessary properties", () => {
+        const body = { inc_votes: 10, name: "Matt" };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(body)
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.patched_comment[0]).toMatchObject({
+              comment_id: 1,
+              body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              article_id: 9,
+              author: "butter_bridge",
+              votes: 26,
+              created_at: "2020-04-06T12:17:00.000Z",
+            });
+          });
+      });
+      test("PATCH:400: should return a 400 message if comment_id is invalid format", () => {
+        const body = { inc_votes: 10};
+        return request(app)
+          .patch("/api/comments/notvalid")
+          .send(body)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid comment_id type")
+          });
+      })
+      test("PATCH:404: should return a 404 message if comment_id is valid but doesn't exist", () => {
+        const body = { inc_votes: 10};
+        return request(app)
+          .patch("/api/comments/1923")
+          .send(body)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Can't find comment at provided ID")
+          });
+      })
+    });
   });
   describe("USERS", () => {
     describe("GET/API/USERS", () => {
@@ -514,24 +586,25 @@ describe("app.js", () => {
     describe("GET/API/USERS/:USERNAME", () => {
       test("GET:200: should respond with a user object with the correct properties", () => {
         return request(app)
-        .get("/api/users/butter_bridge")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.user).toMatchObject({
-            username: 'butter_bridge',
-            name: 'jonny',
-            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
-          })
-        })
-      })
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.user).toMatchObject({
+              username: "butter_bridge",
+              name: "jonny",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+            });
+          });
+      });
       test("GET:404: should return a 404 message if user doesn't exist", () => {
         return request(app)
-        .get("/api/users/mattjohnston")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("User doesn't exist")
-        })
-      })
-    })
+          .get("/api/users/mattjohnston")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("User doesn't exist");
+          });
+      });
+    });
   });
 });
