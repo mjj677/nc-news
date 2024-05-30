@@ -27,6 +27,87 @@ describe("app.js", () => {
           });
       });
     });
+    describe("POST/API/TOPICS", () => {
+      test("POST:201: should return an object containing the newly added topic", () => {
+        const body = {
+          slug: "dogs",
+          description: "All things dog"
+        }
+        return request(app)
+        .post("/api/topics")
+        .send(body)
+        .expect(201)
+        .then(({body}) => {
+          expect(body).toMatchObject({
+            slug: 'dogs',
+            'description': 'All things dog'
+          })
+        })
+      })
+      test("POST:201: should post the given object", () => {
+        const body = {
+          slug: "dogs",
+          description: "All things dog"
+        }
+        return request(app)
+        .post("/api/topics")
+        .send(body)
+        .expect(201)
+        .then(({body}) => {
+          return request(app)
+          .get("/api/topics")
+          .expect(200)
+          .then(({body}) => {
+            expect(body.Topics).toContainEqual({
+              slug: 'dogs',
+              description: 'All things dog'
+            })
+          })
+          })
+        })
+      test("POST:201: should ignore unecessary properties in the body object", () => {
+        const body = {
+          slug: "dogs",
+          description: "All things dog",
+          date_created: "Today!"
+        }
+        return request(app)
+        .post("/api/topics")
+        .send(body)
+        .expect(201)
+        .then(({body}) => {
+          expect(body).toMatchObject({
+            slug: 'dogs',
+            'description': 'All things dog'
+          })
+          })
+      }) 
+      test("POST:400: should return a 400 message if missing properties in body object", () => {
+        const body = {
+          slug: "dogs"
+        }
+        return request(app)
+        .post("/api/topics")
+        .send(body)
+        .expect(400)
+        .then(({body}) => {
+          expect(body.msg).toBe("Bad request: missing body field(s)")
+          })
+      })
+      test("POST:409: should return a 409 message if topic already exists", () => {
+        const body = {
+          slug: "cats",
+          description: "All things cat"
+        }
+        return request(app)
+        .post("/api/topics")
+        .send(body)
+        .expect(409)
+        .then(({ body }) => {
+          expect(body.msg).toBe("409: Topic already exists")
+        })
+      })
+    })
   });
   describe("API", () => {
     describe("GET/API", () => {

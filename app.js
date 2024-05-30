@@ -5,6 +5,7 @@ app.use(express.json())
 
 const {
   getTopics,
+  postTopic
 } = require("./controllers/topics-controllers/topic-controllers");
 
 const {
@@ -47,6 +48,8 @@ app.get("/api/users/:username", getUserByName)
 app.post("/api/articles/:article_id/comments", postCommentByArticleID)
 
 app.post("/api/articles", postArticle)
+
+app.post("/api/topics", postTopic)
 
 app.patch("/api/articles/:article_id", patchArticleByID)
 
