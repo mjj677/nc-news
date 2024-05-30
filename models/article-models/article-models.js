@@ -244,3 +244,11 @@ exports.checkTopicExists = (topic) => {
     }
   });
 }
+
+exports.deleteArticle = (articleID) => {
+  const sqlQuery = `
+  DELETE FROM articles
+  WHERE article_id = $1
+  `
+  return db.query(sqlQuery, [articleID])
+}

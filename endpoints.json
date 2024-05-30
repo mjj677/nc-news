@@ -193,5 +193,11 @@
       "slug": "dogs",
       "description": "All things dog"
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes article at provided ID",
+    "queries": [],
+    "requestFormat": {},
+    "exampleResponse": {}
   }
 }
