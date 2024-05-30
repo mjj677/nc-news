@@ -635,6 +635,50 @@ describe("app.js", () => {
         })
       })
     })
+    describe("DELETE/API/ARTICLES/:ARTICLE_ID", () => {
+      test("DELETE:204: should delete the article at the provided ID", () => {
+        return request(app)
+        .delete("/api/articles/1")
+        .expect(204)
+        .then(() => {
+          return request(app)
+          .get("/api/articles/1")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Can't find article at provided ID")
+          })
+        })
+      })
+    })
+    test("DELETE:204: should delete all comments with the provided article_id", () => {
+      return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(() => {
+        return request(app)
+        .get("/api/articles/1/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Can't find comments at provided article")
+        })
+      })
+    })
+    test("DELETE:400: should return a 400 message if provided id format is invalid", () => {
+      return request(app)
+      .delete("/api/articles/not-valid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid endpoint / article ID")
+      })
+    })
+    test("DELETE:404: should return a 404 message if id is valid but doesn't exist", () => {
+      return request(app)
+      .delete("/api/articles/11000")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Can't find article at provided ID")
+      })
+    })
   });
   describe("COMMENTS", () => {
     describe("DELETE/API/COMMENTS/:COMMENT_ID", () => {
