@@ -105,7 +105,7 @@ describe("app.js", () => {
           });
       });
     });
-    describe("GET/API/ARTICLES", () => {
+    describe.only("GET/API/ARTICLES", () => {
       test("GET:200: should return with a list of all articles which have the correct properties, when given no topic", () => {
         return request(app)
           .get("/api/articles")
@@ -197,6 +197,15 @@ describe("app.js", () => {
             expect(body.msg).toBe("Invalid sort order");
           });
       });
+
+      test.only("GET:200: should return a list of 10 articles by default", () => {
+        return request(app)
+        .get("/api/articles?limit=1&page=1")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body)
+        })
+      })
     });
     describe("GET/API/ARTICLES/:ARTICLE_ID/COMMENTS", () => {
       test("GET:200: should return a list of comments for the specified article with the correct properties", () => {
@@ -494,6 +503,7 @@ describe("app.js", () => {
         .send(body)
         .expect(201)
         .then(({ body }) => {
+          console.log(body.posted_article)
           expect(body.posted_article).not.toHaveProperty("favourite_food")
           expect(body.posted_article).toMatchObject({
           author: 'butter_bridge',

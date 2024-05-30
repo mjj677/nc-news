@@ -22,11 +22,11 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order_by, topic } = req.query;
+  const { sort_by, order_by, topic, limit, page } = req.query;
 
-  getAllArticles(sort_by, order_by, topic)
-    .then((articles) => {
-      res.status(200).send({ articles });
+  getAllArticles(sort_by, order_by, topic, limit, page)
+    .then(({articles, total_count}) => {
+      res.status(200).send({ articles, total_count });
     })
     .catch(next);
 };

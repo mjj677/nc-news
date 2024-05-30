@@ -38,7 +38,8 @@ exports.getArticleByID = (id) => {
   });
 };
 
-exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
+exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic, limit = 10, page = 1) => {
+
   const validSort = [
     "author",
     "title",
@@ -56,8 +57,74 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
     return Promise.reject({ status: 400, msg: "Invalid sort order" });
   }
 
+  limit = parseInt(limit);
+  page = parseInt(page);
+
+  if (isNaN(limit) || limit <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid limit" });
+  }
+  if (isNaN(page) || page <= 0) {
+    return Promise.reject({ status: 400, msg: "Invalid page" });
+  }
+
+  const offset = (page - 1) * limit;
+
+
   let sqlQuery = `
+  WITH article_data AS (
     SELECT 
+      articles.author,
+      articles.title,
+      articles.article_id,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    GROUP BY 
+      articles.author,
+      articles.title,
+      articles.article_id,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url
+    ORDER BY created_at DESC
+    LIMIT $1 OFFSET $2
+  ),
+  total_count AS (
+    SELECT COUNT(*) AS total_count FROM articles
+  )
+  SELECT 
+    article_data.*,
+    total_count.total_count
+  FROM article_data, total_count`;
+
+  const queryValues = [];
+  if (topic) {
+    sqlQuery += `WHERE articles.topic = $1 `;
+    queryValues.push(topic);
+  }
+
+  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by} LIMIT $${queryValues.length + 1} OFFSET $${queryValues.length + 2}`;
+  queryValues.push(limit)
+  queryValues.push(offset)
+
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return {
+      articles: rows,
+      total_count: rows.length ? rows[0].total_count : 0
+    }
+  });
+};
+
+
+/*
+
+WITH article_data AS (
+  SELECT 
     articles.author,
     articles.title,
     articles.article_id,
@@ -66,21 +133,28 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic) => {
     articles.votes,
     articles.article_img_url,
     COUNT(comments.comment_id) AS comment_count
-    FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    `;
-  const queryValues = [];
-  if (topic) {
-    sqlQuery += `WHERE articles.topic = $1 `;
-    queryValues.push(topic);
-  }
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  GROUP BY 
+    articles.author,
+    articles.title,
+    articles.article_id,
+    articles.topic,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url
+  ORDER BY created_at DESC
+  LIMIT $1 OFFSET $2
+),
+total_count AS (
+  SELECT COUNT(*) AS total_count FROM articles
+)
+SELECT 
+  article_data.*,
+  total_count.total_count
+FROM article_data, total_count;
 
-  sqlQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order_by}`;
-
-  return db.query(sqlQuery, queryValues).then(({ rows }) => {
-    return rows;
-  });
-};
+*/
 
 exports.getComments = (id) => {
   const articleID = parseInt(id);
