@@ -28,13 +28,13 @@ exports.getArticleByID = (id) => {
   WHERE articles.article_id = $1
   GROUP BY articles.article_id`;
 
-  return db.query(sqlQuery, queryValues).then((result) => {
-    if (result.rows.length === 0)
+  return db.query(sqlQuery, queryValues).then(({rows}) => {
+    if (!rows.length)
       return Promise.reject({
         status: 404,
         msg: "Can't find article at provided ID",
       });
-    return result.rows;
+    return rows;
   });
 };
 
@@ -125,8 +125,8 @@ exports.getComments = (id, limit, offset) => {
     LIMIT $2 OFFSET $3
     `;
 
-  return db.query(sqlQuery, queryValues).then((result) => {
-    return result.rows;
+  return db.query(sqlQuery, queryValues).then(({rows}) => {
+    return rows;
   });
 };
 

@@ -12,6 +12,7 @@ const {
   deleteArticle,
 } = require("../../models/article-models/article-models");
 
+
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
 
@@ -29,7 +30,7 @@ exports.getArticles = (req, res, next) => {
   const topicPromise = topic ? checkTopicExists(topic) : Promise.resolve();
 
   Promise.all([topicPromise, articlePromises])
-    .then(([topicCheckResult, articleResult]) => {
+    .then(([_, articleResult]) => {
       const { articles, total_count } = articleResult;
       res.status(200).send({ articles, total_count });
     })
@@ -51,19 +52,15 @@ exports.getCommentsByArticleID = (req, res, next) => {
 
   const offset = (p - 1) * limit;
 
-  Promise.all([getArticleByID(article_id), getComments(article_id, limit, offset)])
-    .then(([article, comments]) => {
+  Promise.all([
+    checkArticleExists(article_id),
+    getArticleByID(article_id),
+    getComments(article_id, limit, offset),
+  ])
+    .then(([_, __, comments]) => {
       res.status(200).send({ article_comments: comments });
     })
-    .catch((err) => {
-      if (err.status === 404) {
-        return next({
-          status: 404,
-          msg: "Can't find comments at provided article",
-        });
-      }
-      next(err);
-    });
+    .catch(next)
 };
 
 exports.postCommentByArticleID = (req, res, next) => {
@@ -79,28 +76,15 @@ exports.postCommentByArticleID = (req, res, next) => {
     });
   }
 
-  Promise.all([checkUserExists(body.username), checkArticleExists(articleID)])
-    .then(() => {
-      return postComment(body, articleID);
-    })
+  Promise.all([
+    checkUserExists(body.username),
+    checkArticleExists(articleID),
+    postComment(body, articleID),
+  ])
     .then((result) => {
-      res.status(201).send({ posted_comment: result });
+      res.status(201).send({ posted_comment: result[2] });
     })
-    .catch((err) => {
-      if (
-        err.status === 404 &&
-        err.msg === "Can't find article at provided ID"
-      ) {
-        return next(err);
-      } else if (err.status === 404 && err.msg === "User doesn't exist") {
-        return next({
-          status: 404,
-          msg: "User doesn't exist",
-        });
-      } else {
-        return next(err);
-      }
-    });
+    .catch(next);
 };
 
 exports.patchArticleByID = (req, res, next) => {
@@ -116,23 +100,11 @@ exports.patchArticleByID = (req, res, next) => {
     });
   }
 
-  Promise.all([checkArticleExists(articleID)])
-    .then(() => {
-      return patchArticle(body, articleID);
-    })
+  Promise.all([checkArticleExists(articleID), patchArticle(body, articleID)])
     .then((result) => {
-      res.status(200).send({ patched_article: result });
+      res.status(200).send({ patched_article: result[1] });
     })
-    .catch((err) => {
-      if (
-        err.status === 404 &&
-        err.msg === "Can't find article at provided ID"
-      ) {
-        return next(err);
-      } else {
-        return next(err);
-      }
-    });
+    .catch(next);
 };
 
 exports.postArticle = (req, res, next) => {

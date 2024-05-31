@@ -349,7 +349,7 @@ describe("app.js", () => {
       });
       test("GET:200: when requesting the comments of a valid article, but one that has no comments, should receive an empty array with a status of 200", () => {
         return request(app)
-          .get("/api/articles/2/comments")
+          .get("/api/articles/7/comments")
           .expect(200)
           .then(({ body }) => {
             expect(body.article_comments).toEqual([]);
@@ -416,7 +416,7 @@ describe("app.js", () => {
           .get("/api/articles/12163/comments")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("Can't find comments at provided article");
+            expect(body.msg).toBe("Can't find article at provided ID");
           });
       });
     });
@@ -730,7 +730,7 @@ describe("app.js", () => {
             .get("/api/articles/1/comments")
             .expect(404)
             .then(({ body }) => {
-              expect(body.msg).toBe("Can't find comments at provided article");
+              expect(body.msg).toBe("Can't find article at provided ID");
             });
         });
     });
