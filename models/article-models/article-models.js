@@ -22,7 +22,7 @@ exports.getArticleByID = (id) => {
     articles.created_at,
     articles.votes,
     articles.article_img_url,
-    COUNT(comments.comment_id) AS comment_count
+    CAST(COUNT(comments.comment_id) AS INT) AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
   WHERE articles.article_id = $1
@@ -75,7 +75,7 @@ exports.getAllArticles = (sort_by = "created_at", order_by = "desc", topic, limi
     articles.created_at,
     articles.votes,
     articles.article_img_url,
-    COUNT(comments.comment_id) AS comment_count
+    CAST(COUNT(comments.comment_id) AS INT) AS comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
     `;
@@ -168,12 +168,12 @@ exports.postComment = (body, articleID) => {
 
   const queryValues = [commentBody, articleID, username];
   const sqlQuery = `
-    INSERT INTO comments
-    (body, article_id, author, votes)
-    VALUES
-    ($1, $2, $3, DEFAULT)
-    RETURNING *
-    `;
+  INSERT INTO comments
+  (body, article_id, author, votes)
+  VALUES
+  ($1, $2, $3, DEFAULT)
+  RETURNING *
+  `;
 
   return db.query(sqlQuery, queryValues).then((result) => {
     return result.rows[0];
@@ -230,13 +230,17 @@ exports.postArticleBody = (
     queryValues.push(article_img_url);
   }
 
-  sqlQuery += `) 
-  RETURNING *`;
+  sqlQuery += `)
+  RETURNING article_id`;
 
-  return db.query(sqlQuery, queryValues).then(({ rows }) => {
-    return rows[0]
-  });
-};
+  return db.query(sqlQuery, queryValues)
+  .then(({ rows }) => {
+    const article_id = rows[0].article_id;
+    return this.getArticleByID(String(article_id))
+    }).then((result) => {
+      return result[0]
+    })
+  }
 
 exports.checkAuthorExists = (author) => {
   const sqlQuery = `SELECT * FROM users WHERE username = $1`;

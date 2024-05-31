@@ -145,12 +145,10 @@ describe("app.js", () => {
           .get("/api/articles/1")
           .expect(200)
           .then(({ body }) => {
-            expect(body.article[0]).toEqual(
-              expect.objectContaining({
-                article_id: 1,
-                comment_count: "11",
-              })
-            );
+            expect(body.article[0]).toMatchObject({
+              article_id: 1,
+              comment_count: 11,
+            });
           });
       });
       test("GET:400: should return an invalid input message if endpoint is a string", () => {
@@ -202,7 +200,7 @@ describe("app.js", () => {
                 created_at: expect.any(String),
                 votes: expect.any(Number),
                 article_img_url: expect.any(String),
-                comment_count: expect.any(String),
+                comment_count: expect.any(Number),
               });
             });
           });
@@ -629,6 +627,7 @@ describe("app.js", () => {
               topic: "mitch",
               article_img_url: "URL",
               article_id: expect.any(Number),
+              comment_count: 0,
             });
           });
       });
