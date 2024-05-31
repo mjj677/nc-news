@@ -103,7 +103,7 @@
   "PATCH /api/articles/:article_id": {
     "description": "takes an articleID and updates the vote count",
     "queries": [],
-    "requestFormat": { "inc_votes": "newVote" },
+    "exampleRequest": { "inc_votes": 1 },
     "exampleResponse": {
       "patched_article": {
         "article_id": 1,

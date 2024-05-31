@@ -186,7 +186,7 @@ exports.patchArticle = (body, articleID) => {
   if (!inc_votes) {
     return Promise.reject({
       status: 400,
-      msg: "Bad request",
+      msg: "Bad request: missing required field(s)",
     });
   }
 
@@ -272,4 +272,14 @@ exports.deleteArticle = (articleID) => {
   WHERE article_id = $1
   `
   return db.query(sqlQuery, [articleID])
+}
+
+exports.validateArticleID = (articleID, next) => {
+  if (isNaN(articleID)) {
+    return next({
+      status:400, 
+      msg: "Invalid endpoint / article ID"
+    })
+  }
+  return Promise.resolve()
 }
