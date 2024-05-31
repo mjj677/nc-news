@@ -10,6 +10,7 @@ const {
   checkAuthorExists,
   checkTopicExists,
   deleteArticle,
+  validateArticleID
 } = require("../../models/article-models/article-models");
 
 

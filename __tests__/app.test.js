@@ -578,7 +578,7 @@ describe("app.js", () => {
       test("PATCH:400: should return 400 message if articleID is invalid", () => {
         const body = { inc_votes: 10 };
         return request(app)
-          .patch("/api/articles/banana")
+          .patch("/api/articles/not_a_valid_id")
           .send(body)
           .expect(400)
           .then(({ body }) => {
@@ -592,7 +592,7 @@ describe("app.js", () => {
           .send(body)
           .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toBe("Bad request");
+            expect(body.msg).toBe("Bad request: missing required field(s)");
           });
       });
       test("PATCH:404: should return 404 message if articleID is valid but doesn't exist", () => {
