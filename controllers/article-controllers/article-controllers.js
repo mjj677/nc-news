@@ -87,6 +87,7 @@ exports.postCommentByArticleID = (req, res, next) => {
     .catch(next);
 };
 
+
 exports.patchArticleByID = (req, res, next) => {
   const { body } = req;
   const { article_id } = req.params;
@@ -109,7 +110,6 @@ exports.patchArticleByID = (req, res, next) => {
 
 exports.postArticle = (req, res, next) => {
   const { author, title, body, topic, article_img_url } = req.body;
-
   Promise.all([
     ,
     checkAuthorExists(author),
